@@ -10,7 +10,7 @@ class FileTest extends TestCase
 	 */
 	public function test_getcwd()
 	{
-		$this->assertEquals(__BASE__, \File::getcwd());
+		$this->assertSame(__BASE__, \File::getcwd());
 	}
 
 	/**
@@ -19,7 +19,7 @@ class FileTest extends TestCase
 	 */
 	public function test_pwd()
 	{
-		$this->assertEquals(__BASE__, \File::pwd());
+		$this->assertSame(__BASE__, \File::pwd());
 	}
 
 	/**
@@ -28,8 +28,8 @@ class FileTest extends TestCase
 	public function test_open_without_callback()
 	{
 		$fh = \File::open("./tests/assets/test.txt", "r");
-		$this->assertEquals('stream', get_resource_type($fh));
-		$this->assertEquals('hello', fread($fh, 5));
+		$this->assertSame('stream', get_resource_type($fh));
+		$this->assertSame('hello', fread($fh, 5));
 		\File::close($fh);
 	}
 
@@ -42,7 +42,7 @@ class FileTest extends TestCase
 		\File::open("./tests/assets/test.txt", "r", function($fh) use(&$result) {
 			$result = fgets($fh);
 		});
-		$this->assertEquals("hello, world!\n", $result);
+		$this->assertSame("hello, world!\n", $result);
 	}
 
 	/**
@@ -54,7 +54,7 @@ class FileTest extends TestCase
 		\File::read("./tests/assets/test.txt", function($value) use(&$result) {
 			$result .= $value;
 		});
-		$this->assertEquals("hello, world!\ngood bye!\n", $result);
+		$this->assertSame("hello, world!\ngood bye!\n", $result);
 	}
 
 	/**

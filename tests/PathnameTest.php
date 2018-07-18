@@ -19,7 +19,7 @@ class PathnameTest extends TestCase
 	public function test_getwd()
 	{
 		$pathname = Pathname::getwd();
-		$this->assertEquals(__BASE__, $pathname->to_s());
+		$this->assertSame(__BASE__, $pathname->to_s());
 	}
 
 	/**
@@ -29,7 +29,7 @@ class PathnameTest extends TestCase
 	public function test_pwd()
 	{
 		$pathname = Pathname::pwd();
-		$this->assertEquals(__BASE__, $pathname->to_s());
+		$this->assertSame(__BASE__, $pathname->to_s());
 	}
 
 	/**
@@ -40,7 +40,7 @@ class PathnameTest extends TestCase
 	{
 		$path = new Pathname('/foo/bar');
 		$parent_path = $path->parent_path();
-		$this->assertEquals('/foo', $parent_path->to_s());
+		$this->assertSame('/foo', $parent_path->to_s());
 	}
 
 	/**
@@ -144,12 +144,12 @@ class PathnameTest extends TestCase
 		$path4 = new Pathname('/foo/bar/21');
 		$path5 = new Pathname('/foo/bar/3');
 
-		$this->assertEquals(-1, $path1->comp($path2));
-		$this->assertEquals( 0, $path2->comp($path3));
-		$this->assertEquals( 0, $path3->comp($path2));
-		$this->assertEquals( 1, $path5->comp($path3));
-		$this->assertEquals( 1, $path4->comp($path3));
-		$this->assertEquals(-1, $path4->comp($path5));
+		$this->assertSame(-1, $path1->comp($path2));
+		$this->assertSame( 0, $path2->comp($path3));
+		$this->assertSame( 0, $path3->comp($path2));
+		$this->assertSame( 1, $path5->comp($path3));
+		$this->assertSame( 1, $path4->comp($path3));
+		$this->assertSame(-1, $path4->comp($path5));
 	}
 
 	/**
@@ -160,7 +160,7 @@ class PathnameTest extends TestCase
 	{
 		$path = "/path/to/path";
 		$pathname = new Pathname($path);
-		$this->assertEquals($path, '' . $pathname);
+		$this->assertSame($path, '' . $pathname);
 	}
 
 	/**
@@ -171,7 +171,7 @@ class PathnameTest extends TestCase
 	{
 		$path = "/path/to/path";
 		$pathname = new Pathname($path);
-		$this->assertEquals($path, $pathname->to_s());
+		$this->assertSame($path, $pathname->to_s());
 	}
 
 	/**
@@ -182,7 +182,7 @@ class PathnameTest extends TestCase
 	{
 		$path = "/path/to/path";
 		$pathname = new Pathname($path);
-		$this->assertEquals($path, $pathname->to_path());
+		$this->assertSame($path, $pathname->to_path());
 	}
 
 	/**
@@ -194,7 +194,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('/usr');
 		$path2 = new Pathname('bin/php');
 		$path3 = $path1->add($path2);
-		$this->assertEquals('/usr/bin/php', $path3->to_s());
+		$this->assertSame('/usr/bin/php', $path3->to_s());
 	}
 
 	/**
@@ -206,7 +206,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('/usr');
 		$path2 = new Pathname('/var/log/php');
 		$path3 = $path1->add($path2);
-		$this->assertEquals('/var/log/php', $path3->to_s());
+		$this->assertSame('/var/log/php', $path3->to_s());
 	}
 
 	/**
@@ -218,7 +218,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('/foo/bar/baz/qux');
 		$path2 = new Pathname('../../hoge/piyo');
 		$path3 = $path1->add($path2);
-		$this->assertEquals('/foo/bar/hoge/piyo', $path3->to_s());
+		$this->assertSame('/foo/bar/hoge/piyo', $path3->to_s());
 	}
 
 	/**
@@ -230,7 +230,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('/foo/bar');
 		$path2 = new Pathname('../../../hoge/piyo');
 		$path3 = $path1->add($path2);
-		$this->assertEquals('/hoge/piyo', $path3->to_s());
+		$this->assertSame('/hoge/piyo', $path3->to_s());
 	}
 
 	/**
@@ -242,7 +242,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('foo/bar');
 		$path2 = new Pathname('../../../hoge/piyo');
 		$path3 = $path1->add($path2);
-		$this->assertEquals('../hoge/piyo', $path3->to_s());
+		$this->assertSame('../hoge/piyo', $path3->to_s());
 	}
 
 	/**
@@ -254,7 +254,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('foo/bar/');
 		$path2 = new Pathname('./hoge/piyo/');
 		$path3 = $path1->add($path2);
-		$this->assertEquals('foo/bar/hoge/piyo/', $path3->to_s());
+		$this->assertSame('foo/bar/hoge/piyo/', $path3->to_s());
 	}
 
 	/**
@@ -382,7 +382,7 @@ class PathnameTest extends TestCase
 		$path->read(function($value) use(&$result) {
 			$result .= $value;
 		});
-		$this->assertEquals("hello, world!\ngood bye!\n", $result);
+		$this->assertSame("hello, world!\ngood bye!\n", $result);
 	}
 
 	/*****************************************
