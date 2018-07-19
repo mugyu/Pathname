@@ -431,6 +431,7 @@ class PathnameTest extends TestCase
 		}
 		catch (\ErrorException $e)
 		{
+			restore_error_handler();
 			return;
 		}
 		finally
