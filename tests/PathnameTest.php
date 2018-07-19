@@ -410,14 +410,38 @@ class PathnameTest extends TestCase
 	{
 		$path1 = new Pathname('./tests/assets');
 		$path2 = new Pathname('./tests/assets/test.txt');
-		$path3 = new Pathname('./tests/assets/link_test.txt');
 		$this->assertFalse($path1->is_file());
 		$this->assertTrue($path2->is_file());
 		$this->assertTrue($path1->is_dir());
 		$this->assertFalse($path2->is_dir());
-		$this->assertFalse($path2->is_link());
-		$this->assertTrue($path3->is_link());
 		$this->assertTrue($path1->is_readable());
+	}
+
+	public function test_is_link()
+	{
+		try
+		{
+			set_error_handler(function($severity, $message, $file, $line) {
+				throw new ErrorException($message, 0, $severity, $file, $line);
+			});
+			if ( ! file_exists('./tests/assets/link_test.txt'))
+			{
+				symlink('./tests/assets/test.txt', './tests/assets/link_test.txt');
+			}
+		}
+		catch (\ErrorException $e)
+		{
+			return;
+		}
+		finally
+		{
+			restore_error_handler();
+		}
+
+		$path1 = new Pathname('./tests/assets/test.txt');
+		$path2 = new Pathname('./tests/assets/link_test.txt');
+		$this->assertFalse($path1->is_link());
+		$this->assertTrue($path2->is_link());
 	}
 
 	/*****************************************
