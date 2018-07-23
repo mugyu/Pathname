@@ -26,11 +26,11 @@ class Pathname
 		{
 			if (DIRECTORY_SEPARATOR === '/')
 			{
-				self::$separator_pattern = '/\//';
+				self::$separator_pattern = '[\/]';
 			}
 			else
 			{
-				self::$separator_pattern = '/\/|\\\/';
+				self::$separator_pattern = '[\/\\\]';
 			}
 		}
 		return self::$separator_pattern;
@@ -55,7 +55,8 @@ class Pathname
 
 	function __construct($pathname)
 	{
-		$this->pathname = preg_replace(self::separator_pattern(), '/', $pathname);
+		self::separator_pattern();
+		$this->pathname = $pathname;
 	}
 
 	public function __toString()
@@ -85,34 +86,91 @@ class Pathname
 		return new self($this->plus($this->to_s(), $other->to_s()));
 	}
 
+	protected function chop_basename($path)
+	{
+		$base = basename($path);
+		if (preg_match('/\A'.self::$separator_pattern.'?\z/', $path))
+		{
+			return NULL;
+		}
+		return [substr($path, 0, strrpos($path, $base)), $base];
+	}
+
 	protected function plus($path1, $path2)
 	{
-		// TODO: 最適化は全くしていない
-		$segments1 = explode('/', preg_replace('/([^\/])\/\z/', '\1', $path1));
-		$segments2 = explode('/', $path2);
-		foreach($segments2 as $index => $segment)
+		$prefix2 = $path2;
+		$index_list2 = [];
+		$basename_list2 = [];
+		while ($r2 = $this->chop_basename($prefix2))
 		{
-			if ($segment === '..')
-			{
-				if (count($segments1) === 0) {
-					$segments1[] = $segment;
-				}
-				elseif (count($segments1) !== 1 || $segments1[0] !== '') {
-					array_pop($segments1);
-				}
-				continue;
-			}
-			elseif ($segment === '.') {
-				continue;
-			}
-			$segments1[] = $segment;
+			list($prefix2, $basename2) = $r2;
+			array_unshift($index_list2, strlen($prefix2));
+			array_unshift($basename_list2, $basename2);
 		}
-		return implode('/', $segments1);
+		if ($prefix2 !== '')
+		{
+			return $path2;
+		}
+
+		$prefix1 = $path1;
+		while (true) {
+			while ( ! empty($basename_list2) && $basename_list2[0] === '.')
+			{
+				array_shift($index_list2);
+				array_shift($basename_list2);
+			}
+			if ( ! $r1 = $this->chop_basename($prefix1))
+			{
+				break;
+			}
+			list($prefix1, $basename1) = $r1;
+			if ($basename1 === '.')
+			{
+				next;
+			}
+			if ($basename1 === '..' || empty($basename_list2) || $basename_list2[0] !== '..')
+			{
+				$prefix1 = $prefix1 . $basename1;
+				break;
+			}
+			array_shift($index_list2);
+			array_shift($basename_list2);
+		}
+		$r1 = $this->chop_basename($prefix1);
+		if ( ! $r1 && preg_match('/'.self::$separator_pattern.'/', $prefix1))
+		{
+			while ( ! empty($basename_list2) && $basename_list2[0] == '..')
+			{
+				array_shift($index_list2);
+				array_shift($basename_list2);
+			}
+		}
+		if ( ! empty($basename_list2))
+		{
+			$suffix2 = substr($path2, $index_list2[0]);
+			if ($r1)
+			{
+				if (preg_match('/'.self::$separator_pattern.'\z/', $prefix1)) {
+					return $prefix1 . $suffix2;
+				}
+				return $prefix1 . DIRECTORY_SEPARATOR . $suffix2;
+			}
+			return $prefix1 . $suffix2;
+		}
+		else
+		{
+			if ($r1)
+			{
+				return $prefix1;
+			}
+			return basename($prefix1);
+		}
 	}
 
 	public function is_root()
 	{
-		return $this->pathname === '/';
+		return is_null($this->chop_basename($this->pathname)) &&
+		       preg_match('/'.self::$separator_pattern.'/', $this->pathname);
 	}
 
 	public function parent_path()
@@ -122,12 +180,17 @@ class Pathname
 
 	public function is_absolute()
 	{
-		return strpos($this->pathname, '/') === 0;
+		return ! $this->is_relative();
 	}
 
 	public function is_relative()
 	{
-		return ! $this->is_absolute();
+		$pathname = $this->pathname;
+		while ($r = $this->chop_basename($pathname))
+		{
+			list($pathname, $_dummy) = $r;
+		}
+		return $pathname === '';
 	}
 
 	public function comp(self $other)
@@ -153,7 +216,7 @@ class Pathname
 
 	public function instance_glob($pattern)
 	{
-		return array_map(function($path){return new self($path);}, glob($this->to_s().'/'.$pattern));
+		return array_map(function($path){return new self($path);}, glob($this->to_s().DIRECTORY_SEPARATOR.$pattern));
 	}
 
 	public function realpath()

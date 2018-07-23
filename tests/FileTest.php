@@ -10,7 +10,7 @@ class FileTest extends TestCase
 	 */
 	public function test_getcwd()
 	{
-		$this->assertSame(__BASE__, \File::getcwd());
+		$this->assertSame(__BASE__, ds(\File::getcwd()));
 	}
 
 	/**
@@ -19,7 +19,7 @@ class FileTest extends TestCase
 	 */
 	public function test_pwd()
 	{
-		$this->assertSame(__BASE__, \File::pwd());
+		$this->assertSame(__BASE__, ds(\File::pwd()));
 	}
 
 	/**

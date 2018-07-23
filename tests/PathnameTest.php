@@ -71,10 +71,10 @@ class PathnameTest extends TestCase
 		$paths = $path->instance_glob("*.txt");
 		$this->assertContainsOnly('Pathname', $paths);
 
-		$strings = array_map(function($path) {return (string)$path;}, $paths);
+		$strings = array_map(function($path) {return ds((string)$path);}, $paths);
 		foreach($expected_list as $expected)
 		{
-			$this->assertContains($expected, $strings);
+			$this->assertContains(ds($expected), $strings);
 		}
 	}
 
@@ -109,7 +109,7 @@ class PathnameTest extends TestCase
 	public function test_realpath()
 	{
 		$path = new Pathname('./hoge/../piyo/../tests/fuga/../assets/./test.txt');
-		$this->assertSame(__BASE__.'/tests/assets/test.txt', $path->realpath()->to_s());
+		$this->assertSame(ds(__BASE__.'/tests/assets/test.txt'), $path->realpath()->to_s());
 	}
 
 	/**
@@ -194,7 +194,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('/usr');
 		$path2 = new Pathname('bin/php');
 		$path3 = $path1->add($path2);
-		$this->assertSame('/usr/bin/php', $path3->to_s());
+		$this->assertSame(ds('/usr/bin/php'), ds($path3->to_s()));
 	}
 
 	/**
@@ -218,7 +218,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('/foo/bar/baz/qux');
 		$path2 = new Pathname('../../hoge/piyo');
 		$path3 = $path1->add($path2);
-		$this->assertSame('/foo/bar/hoge/piyo', $path3->to_s());
+		$this->assertSame(ds('/foo/bar/hoge/piyo'), ds($path3->to_s()));
 	}
 
 	/**
@@ -254,7 +254,7 @@ class PathnameTest extends TestCase
 		$path1 = new Pathname('foo/bar/');
 		$path2 = new Pathname('./hoge/piyo/');
 		$path3 = $path1->add($path2);
-		$this->assertSame('foo/bar/hoge/piyo/', $path3->to_s());
+		$this->assertSame(ds('foo/bar/hoge/piyo/'), ds($path3->to_s()));
 	}
 
 	/**

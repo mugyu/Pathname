@@ -1,3 +1,7 @@
 <?php
-$base = preg_replace('/\/|\\\/', '/', preg_replace('/.tests$/', '', __DIR__));
-define('__BASE__', $base);
+define('DS', DIRECTORY_SEPARATOR);
+function ds($path)
+{
+	return preg_replace('/\/|\\\/', DIRECTORY_SEPARATOR, $path);
+}
+define('__BASE__', ds(preg_replace('/.tests$/', '', __DIR__)));
