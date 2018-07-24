@@ -96,6 +96,30 @@ class Pathname
 		return [substr($path, 0, strrpos($path, $base)), $base];
 	}
 
+	protected function split_names($path)
+	{
+		$names = [];
+		while ($r = $this->chop_basename($path))
+		{
+			list($path, $basename) = $r;
+			array_unshift($names, $basename);
+		}
+		return $names;
+	}
+
+	public function each_filename(callable $callback = NULL)
+	{
+		$basenames = $this->split_names($this->pathname);
+		if (is_null($callback))
+		{
+			return $basenames;
+		}
+		foreach($basenames as $basename)
+		{
+			call_user_func($callback, $basename);
+		}
+	}
+
 	protected function plus($path1, $path2)
 	{
 		$prefix2 = $path2;

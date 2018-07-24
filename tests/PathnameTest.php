@@ -114,6 +114,28 @@ class PathnameTest extends TestCase
 
 	/**
 	 * @test
+	 * @group each
+	 */
+	public function test_each_filename()
+	{
+		$path = new Pathname('/foo/bar/baz');
+		$expected_names = ['foo', 'bar', 'baz'];
+		$filenames = $path->each_filename();
+
+		$this->assertCount(count($expected_names), $filenames);
+		$this->assertSame($expected_names[0], $filenames[0]);
+		$this->assertSame($expected_names[1], $filenames[1]);
+		$this->assertSame($expected_names[2], $filenames[2]);
+
+		$index = 0;
+		$path->each_filename(function($name) use($expected_names, &$index) {
+			$this->assertSame($expected_names[$index], $name);
+			++$index;
+		});
+	}
+
+	/**
+	 * @test
 	 * @group comp
 	 */
 	public function test_equal_and_identity()

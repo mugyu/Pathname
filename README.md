@@ -37,6 +37,7 @@ echo $path4->to_s() . PHP_EOL; // => /foo
 - delete()
 - device()
 - dirname()
+- each_filename (callable $callback = NULL)
 - exists()
 - gid()
 - inode()
