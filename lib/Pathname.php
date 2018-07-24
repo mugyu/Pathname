@@ -12,6 +12,7 @@ class Pathname
 {
 	// TODO: コメントが全然足りないので足す
 	// TODO: ドキュメントが無いので書く
+	// TODO: ファイルシステム依存の機能はTraitに分ける
 
 	use Pathname\StateTrait;
 	use Pathname\OtherStateTrait;
@@ -241,6 +242,28 @@ class Pathname
 	public function instance_glob($pattern)
 	{
 		return array_map(function($path){return new self($path);}, glob($this->to_s().DIRECTORY_SEPARATOR.$pattern));
+	}
+
+	public function entries()
+	{
+		$path = $this->pathname;
+		if ( ! $this->is_dir())
+		{
+			$path = $this->parent_path()->to_s();
+		}
+		return array_map(function($entry){return new self($entry);}, scandir($path));
+	}
+
+	public function each_entry(callable $callback = NULL)
+	{
+		if (is_null($callback))
+		{
+			return $this->entries();
+		}
+		foreach($this->entries() as $entry)
+		{
+			call_user_func($callback, $entry);
+		}
 	}
 
 	public function realpath()

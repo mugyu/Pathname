@@ -114,6 +114,46 @@ class PathnameTest extends TestCase
 
 	/**
 	 * @test
+	 * @group file
+	 */
+	public function test_entries()
+	{
+		$expected_list = scandir("./tests");
+		$path = new Pathname("./tests");
+		$entries = $path->entries();
+		$this->assertCount(count($expected_list), $entries);
+		$this->assertContainsOnly('Pathname', $entries);
+		foreach($entries as $index => $entry)
+		{
+			$this->assertSame($expected_list[$index], $entry->to_s());
+		}
+	}
+
+	/**
+	 * @test
+	 * @group file each
+	 */
+	public function test_each_entry()
+	{
+		$expected_list = scandir("./tests");
+		$path = new Pathname("./tests");
+		$entries = $path->each_entry();
+		$this->assertCount(count($expected_list), $entries);
+		$this->assertContainsOnly('Pathname', $entries);
+		foreach($entries as $index => $entry)
+		{
+			$this->assertSame($expected_list[$index], $entry->to_s());
+		}
+
+		$index = 0;
+		$path->each_entry(function($entry) use($expected_list, &$index){
+			$this->assertSame($expected_list[$index], $entry->to_s());
+			++$index;
+		});
+	}
+
+	/**
+	 * @test
 	 * @group each
 	 */
 	public function test_each_filename()
