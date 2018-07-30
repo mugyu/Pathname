@@ -114,6 +114,116 @@ class PathnameTest extends TestCase
 
 	/**
 	 * @test
+	 * @group new
+	 */
+	public function test_cleanpath()
+	{
+		$path = new Pathname('/foo/./bar/../baz/../../qux');
+		$this->assertInstanceOf('Pathname', $path->cleanpath());
+		$this->assertSame('/qux', $path->cleanpath()->to_s());
+
+		$path = new Pathname('/foo/./bar/../../../../baz');
+		$this->assertSame('/baz', $path->cleanpath()->to_s());
+
+		$path = new Pathname('foo/./bar/../../../../baz');
+		$this->assertSame('../../baz', $path->cleanpath()->to_s());
+
+		$path = new Pathname('/foo/./bar/../baz');
+		$this->assertSame('/foo/baz', $path->cleanpath()->to_s());
+
+		$path = new Pathname('foo/./bar/../baz');
+		$this->assertSame('foo/baz', $path->cleanpath()->to_s());
+	}
+
+	/**
+	 * @test
+	 * @group new
+	 */
+	public function test_ascend()
+	{
+		$expected_list = [
+			'/foo/bar/baz/qux',
+			'/foo/bar/baz',
+			'/foo/bar',
+			'/foo',
+			DS,
+		];
+		$path = new Pathname('/foo/bar/baz/qux');
+		$paths = $path->ascend();
+		$this->assertContainsOnly('Pathname', $paths);
+		$this->assertCount(5, $paths);
+		$this->assertSame($expected_list[0], $paths[0]->to_s());
+		$this->assertSame($expected_list[1], $paths[1]->to_s());
+		$this->assertSame($expected_list[2], $paths[2]->to_s());
+		$this->assertSame($expected_list[3], $paths[3]->to_s());
+		$this->assertSame($expected_list[4], $paths[4]->to_s());
+
+		$i = 0;
+		$path->ascend(function($path) use($expected_list, &$i) {
+			$this->assertSame($expected_list[$i], $path->to_s());
+			++$i;
+		});
+	}
+
+	/**
+	 * @test
+	 * @group new
+	 */
+	public function test_descend()
+	{
+		$expected_list = [
+			DS,
+			'/foo',
+			'/foo/bar',
+			'/foo/bar/baz',
+			'/foo/bar/baz/qux',
+		];
+		$path = new Pathname('/foo/bar/baz/qux');
+		$paths = $path->descend();
+		$this->assertContainsOnly('Pathname', $paths);
+		$this->assertCount(5, $paths);
+		$this->assertSame($expected_list[0], $paths[0]->to_s());
+		$this->assertSame($expected_list[1], $paths[1]->to_s());
+		$this->assertSame($expected_list[2], $paths[2]->to_s());
+		$this->assertSame($expected_list[3], $paths[3]->to_s());
+		$this->assertSame($expected_list[4], $paths[4]->to_s());
+
+		$i = 0;
+		$path->descend(function($path) use($expected_list, &$i) {
+			$this->assertSame($expected_list[$i], $path->to_s());
+			++$i;
+		});
+	}
+
+	/**
+	 * @test
+	 * @group new
+	 */
+	public function test_replace()
+	{
+		$path = new Pathname('/hoge/PIYO/fuga');
+		$replaced = $path->replace('/PIYO/', 'piyopiyo');
+		$this->assertSame('/hoge/piyopiyo/fuga', $replaced->to_s());
+	}
+
+	/**
+	 * @test
+	 * @group file
+	 */
+	public function test_extname()
+	{
+		$extname = (new Pathname('/foo/bar.php'))->extname();
+		$this->assertSame('.php', $extname);
+
+		$extname = (new Pathname('/foo/bar'))->extname();
+		$this->assertSame('', $extname);
+
+		$extname = (new Pathname('/foo/bar.lua.rb..'))->extname();
+		$this->assertSame('.rb', $extname);
+	}
+
+	/**
+	 * @test
 	 * @group file
 	 */
 	public function test_entries()

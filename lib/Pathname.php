@@ -275,4 +275,125 @@ class Pathname
 		}
 		return FALSE;
 	}
+
+	public function ascend(callable $callback = NULL)
+	{
+		$paths = [$this];
+		$path = $this->pathname;
+		while ($r = $this->chop_basename($path))
+		{
+			list($path, $_) = $r;
+			$paths[] = new Pathname($this->del_trailing_separator($path));
+		}
+		if (is_null($callback))
+		{
+			return $paths;
+		}
+
+		foreach($paths as $path)
+		{
+			call_user_func($callback, $path);
+		}
+	}
+
+	public function descend(callable $callback = NULL)
+	{
+		$paths = array_reverse($this->ascend());
+		if (is_null($callback))
+		{
+			return $paths;
+		}
+
+		foreach($paths as $path)
+		{
+			call_user_func($callback, $path);
+		}
+	}
+
+	protected function del_trailing_separator($path)
+	{
+		if ($r = $this->chop_basename($path))
+		{
+			list($pre, $basename) = $r;
+			return $pre . $basename;
+		}
+		if (preg_match('/'.self::$separator_pattern.'+\z/', $path))
+		{
+			return dirname($path);
+		}
+		return $path;
+	}
+
+	public function replace($pattern, $replacement, $limit = -1)
+	{
+		$path = $this->pathname;
+		$replaced = preg_replace($pattern, $replacement, $path, $limit);
+		if (is_null($replaced))
+		{
+			return $replaced;
+		}
+		return new Pathname($replaced);
+	}
+
+	public function extname()
+	{
+		$basename = basename($this->pathname);
+		$result = preg_match('/(\.[^\.]+)\.*\z/', $basename, $matches);
+		return $result && $matches[1] ? $matches[1] : '';
+	}
+
+	public function cleanpath()
+	{
+		return new self($this->cleanpath_aggressive($this->pathname));
+	}
+
+	protected function cleanpath_aggressive($path)
+	{
+		$names = [];
+		$pre = $path;
+		while ($r = $this->chop_basename($pre))
+		{
+			list($pre, $base) = $r;
+			switch ($base)
+			{
+				case '.':
+					break;
+				case '..':
+					array_unshift($names, $base);
+					break;
+				default:
+					if ($names && $names[0] === '..')
+					{
+						array_shift($names);
+					}
+					else
+					{
+						array_unshift($names, $base);
+					}
+					break;
+			}
+		}
+		$pre = preg_replace('/'.self::$separator_pattern.'/', '/', $pre);
+		if ($pre !== '/')
+		{
+			$pre = basename($pre);
+		}
+		if (preg_match('/'.self::$separator_pattern.'/', $pre))
+		{
+			while ($names[0] == '..')
+			{
+				array_shift($names);
+			}
+		}
+		$cleanpath = $pre;
+		$names_size = count($names);
+		if ($names_size)
+		{
+			$cleanpath = $cleanpath . $names[0];
+		}
+		for ($i = 1; $i < $names_size; $i++) {
+			$cleanpath = $cleanpath . '/' . $names[$i];
+		}
+		return $cleanpath;
+	}
 }
