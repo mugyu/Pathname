@@ -731,6 +731,26 @@ class PathnameTest extends TestCase
 		$this->remove_tree($test_dir);
 	}
 
+	public function test_rename()
+	{
+		$test_dir = './tests/file_action';
+		$this->remove_tree($test_dir);
+		$origin_file = $test_dir.'/origin.txt';
+		$renamed_file = $test_dir.'/renamed.txt';
+		mkdir($test_dir);
+		touch($origin_file);
+
+		$this->assertFileExists($origin_file);
+		$path1 = new Pathname($origin_file);
+		$path2 = $path1->rename($renamed_file);
+		$this->assertInstanceOf('Pathname', $path2);
+		$this->assertSame($renamed_file, $path2->to_s());
+		$this->assertFileNotExists($origin_file);
+		$this->assertFileExists($renamed_file);
+
+		$this->remove_tree($test_dir);
+	}
+
 	/*****************************************
 	 * Utility
 	 *****************************************/

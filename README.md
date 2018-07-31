@@ -68,6 +68,7 @@ echo $path4->to_s() . PHP_EOL; // => /foo
 - rdev()
 - read($callback)
 - realpath()
+- reanme($rename_path)
 - rmdir()
 - size()
 - to_path()

@@ -27,4 +27,10 @@ trait ActionTrait
 	{
 		return rmdir($this->to_s());
 	}
+
+	public function rename($rename_path)
+	{
+		rename($this->to_s(), (string)$rename_path);
+		return new self($rename_path);
+	}
 }
