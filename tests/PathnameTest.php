@@ -636,4 +636,119 @@ class PathnameTest extends TestCase
 
 		@unlink($test_path);
 	}
+
+	/*****************************************
+	 * ChildrenIterator
+	 *****************************************/
+
+	public function test_children()
+	{
+		$test_dir = './tests/children';
+		$this->remove_tree($test_dir);
+		mkdir($test_dir);
+		mkdir($test_dir.'/directory');
+		mkdir($test_dir.'/.dot_directory');
+		touch($test_dir.'/file.txt');
+		touch($test_dir.'/.dot_file.txt');
+		$expected_file_list = [
+			'file.txt',
+			'.dot_file.txt',
+		];
+		$expected_directory_list = [
+			'directory',
+			'.dot_directory',
+		];
+		$expected_list = array_merge($expected_file_list, $expected_directory_list);
+
+		$path = new Pathname($test_dir);
+		$count = 0;
+		foreach($path->children() as $child)
+		{
+			$this->assertInstanceOf('Pathname', $child);
+			$this->assertContains($child->to_s(), $expected_list);
+			++$count;
+		}
+		$this->assertSame(4, $count);
+
+		$count = 0;
+		foreach($path->children(FALSE) as $child)
+		{
+			$this->assertInstanceOf('Pathname', $child);
+			$this->assertContains($child->to_s(), $expected_file_list);
+			$this->assertNotContains($child->to_s(), $expected_directory_list);
+			++$count;
+		}
+		$this->assertSame(2, $count);
+
+		$this->remove_tree($test_dir);
+	}
+
+	public function test_each_child()
+	{
+		$test_dir = './tests/children';
+		$this->remove_tree($test_dir);
+		mkdir($test_dir);
+		mkdir($test_dir.'/directory');
+		mkdir($test_dir.'/.dot_directory');
+		touch($test_dir.'/file.txt');
+		touch($test_dir.'/.dot_file.txt');
+		$expected_file_list = [
+			'file.txt',
+			'.dot_file.txt',
+		];
+		$expected_directory_list = [
+			'directory',
+			'.dot_directory',
+		];
+		$expected_list = array_merge($expected_file_list, $expected_directory_list);
+
+		$path = new Pathname($test_dir);
+		foreach($path->each_child() as $child)
+		{
+			$this->assertInstanceOf('Pathname', $child);
+			$this->assertContains($child->to_s(), $expected_list);
+		}
+		$path->each_child(function($child) use($expected_list){
+			$this->assertInstanceOf('Pathname', $child);
+			$this->assertContains($child->to_s(), $expected_list);
+		});
+		$count = 0;
+		$path->each_child(TRUE, function($child) use(&$count, $expected_list){
+			$this->assertInstanceOf('Pathname', $child);
+			$this->assertContains($child->to_s(), $expected_list);
+			++$count;
+		});
+		$this->assertSame(4, $count);
+
+		$count = 0;
+		$path->each_child(FALSE, function($child) use(&$count, $expected_file_list, $expected_directory_list){
+			$this->assertInstanceOf('Pathname', $child);
+			$this->assertContains($child->to_s(), $expected_file_list);
+			$this->assertNotContains($child->to_s(), $expected_directory_list);
+			++$count;
+		});
+		$this->assertSame(2, $count);
+		$this->remove_tree($test_dir);
+	}
+
+	/*****************************************
+	 * Utility
+	 *****************************************/
+
+	function remove_tree($dir) {
+		if (file_exists($dir) && $handle = opendir("$dir")) {
+			while (false !== ($item = readdir($handle))) {
+				if ($item === '.' || $item === '..') {
+					continue;
+				}
+				if (is_dir("$dir/$item")) {
+					$this->remove_tree("$dir/$item");
+				} else {
+					unlink("$dir/$item");
+				}
+			}
+			closedir($handle);
+			rmdir($dir);
+		}
+	}
 }

@@ -3,6 +3,7 @@ require_once __DIR__.'./pathname/StateTrait.php';
 require_once __DIR__.'./pathname/OtherStateTrait.php';
 require_once __DIR__.'./pathname/FileTrait.php';
 require_once __DIR__.'./pathname/ActionTrait.php';
+require_once __DIR__.'./pathname/ChildrenIterator.php';
 
 /**
  * Pathname
@@ -14,10 +15,10 @@ class Pathname
 	// TODO: ドキュメントが無いので書く
 	// TODO: ファイルシステム依存の機能はTraitに分ける
 
-	use Pathname\StateTrait;
-	use Pathname\OtherStateTrait;
-	use Pathname\FileTrait;
-	use Pathname\ActionTrait;
+	use \Pathname\StateTrait;
+	use \Pathname\OtherStateTrait;
+	use \Pathname\FileTrait;
+	use \Pathname\ActionTrait;
 
 	const VERSION = '0.1.1';
 
@@ -395,5 +396,27 @@ class Pathname
 			$cleanpath = $cleanpath . '/' . $names[$i];
 		}
 		return $cleanpath;
+	}
+
+	public function children($with_directory = TRUE)
+	{
+		return new \Pathname\ChildrenIterator($this->pathname, $with_directory);
+	}
+
+	public function each_child($with_directory = TRUE, callable $callback = NULL)
+	{
+		if (is_callable($with_directory))
+		{
+			return $this->each_child(TRUE, $with_directory);
+		}
+		$children = $this->children($with_directory);
+		if (is_null($callback))
+		{
+			return $children;
+		}
+		foreach($children as $child)
+		{
+			call_user_func($callback, $child);
+		}
 	}
 }
