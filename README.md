@@ -55,6 +55,7 @@ echo $path4->to_s() . PHP_EOL; // => /foo
 - is_readable()
 - is_relative()
 - is_root()
+- is_writable()
 - is_writeable()
 - mkdir($mode = 777)
 - mode()

@@ -28,6 +28,11 @@ trait OtherStateTrait
 		return is_readable($this->to_s());
 	}
 
+	public function is_writable()
+	{
+		return is_writable($this->to_s());
+	}
+
 	public function is_writeable()
 	{
 		return is_writeable($this->to_s());
