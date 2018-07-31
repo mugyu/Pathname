@@ -33,4 +33,34 @@ trait ActionTrait
 		rename($this->to_s(), (string)$rename_path);
 		return new self($rename_path);
 	}
+
+	public function chmod($mode)
+	{
+		$result = chmod($this->to_s(), $mode);
+		if ($result)
+		{
+			clearstatcache(TRUE, $this->to_s());
+		}
+		return $result;
+	}
+
+	public function chown($user)
+	{
+		$result = chown($this->to_s(), $user);
+		if ($result)
+		{
+			clearstatcache(TRUE, $this->to_s());
+		}
+		return $result;
+	}
+
+	public function chgrp($group)
+	{
+		$result = chgrp($this->to_s(), $group);
+		if ($result)
+		{
+			clearstatcache(TRUE, $this->to_s());
+		}
+		return $result;
+	}
 }

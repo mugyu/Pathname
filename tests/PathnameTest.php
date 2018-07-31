@@ -751,6 +751,23 @@ class PathnameTest extends TestCase
 		$this->remove_tree($test_dir);
 	}
 
+	public function test_chmod()
+	{
+		$test_dir = './tests/file_action';
+		$origin_file = $test_dir.'/origin.txt';
+		$this->remove_tree($test_dir);
+		mkdir($test_dir);
+		touch($origin_file);
+		chmod($origin_file, 0444);
+
+		$path = new Pathname($origin_file);
+		$this->assertFileNotIsWritable($origin_file);
+		$path->chmod(0777);
+		$this->assertFileIsWritable($origin_file);
+
+		$this->remove_tree($test_dir);
+	}
+
 	/*****************************************
 	 * Utility
 	 *****************************************/
